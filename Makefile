@@ -6,7 +6,7 @@ LFT			=	libft/libft.a
 INC			=	-I ./inc -I ./libft -I ./mlx
 LIB			=	-L ./libft -lft -L ./mlx -lmlx -lXext -lX11 -lm -lbsd
 OBJ			=	$(patsubst src%, obj%, $(SRC:.c=.o))
-SRC			=	src/move1.c \
+SRC			=	src/test.c \
 
 all:		$(MLX) $(LFT) obj $(NAME)
 
