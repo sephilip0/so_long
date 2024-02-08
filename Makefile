@@ -2,16 +2,16 @@ NAME		=	so_long
 CC			=	gcc
 FLAGS		=	-Wall -Wextra -Werror
 MLX			=	mlx/Makefile.gen
-LFT			=	libft/libft.a
+LFT			=	includes/libft/libft.a
 INC			=	-I ./inc -I ./libft -I ./mlx
-LIB			=	-L ./libft -lft -L ./mlx -lmlx -lXext -lX11 -lm -lbsd
+LIB			=	-L ./includes/libft -lft -L ./mlx -lmlx -lXext -lX11 -lm -lbsd
 OBJ			=	$(patsubst src%, obj%, $(SRC:.c=.o))
 SRC			=	src/test.c \
 
 all:		$(MLX) $(LFT) obj $(NAME)
 
 $(NAME):	$(OBJ)
-			$(CC) $(FLAGS) -fsanitize=address -o $@ $^ $(LIB)
+			$(CC) $(FLAGS) -g -fsanitize=address -o $@ $^ $(LIB)
 
 $(MLX):
 			@echo " [ .. ] | Compiling minilibx.."
@@ -30,14 +30,11 @@ obj/%.o:	src/%.c
 			$(CC) $(FLAGS) $(INC) -o $@ -c $<
 
 clean:
-			@make -s $@ -C libft
-			@rm -rf $(OBJ) obj
-			@echo "object files removed."
+		@rm -rf $(OBJ) obj
+		@echo "object files removed."
 
 fclean:		clean
-			@make -s $@ -C libft
-			@rm -rf $(NAME)
-			@echo "binary file removed."
+		rm -rf $(NAME)
 
 re:			fclean all
 
