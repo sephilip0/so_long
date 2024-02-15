@@ -9,10 +9,10 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+#include <time.h>
 
 #define ASSET_NBR	128
-#define SCALER		3
-#define STEP		24 * SCALER
+#define SCALER		2
 
 typedef struct s_image
 {
@@ -50,6 +50,9 @@ typedef struct s_map
 	int		width;
 	int		player_y;
 	int		player_x;
+	int		idle;
+//	int		player_state_x;
+//	int		player_state_y;
 	int		exit_y;
 	int		exit_x;
 }	t_map;
@@ -63,6 +66,7 @@ typedef struct s_mlx
 //mine
 	t_image		frame;
 	t_image		*asset;
+	int		dif_timer;
 	long		frame_time;
 	int			steps;
 	int			step_bol;
