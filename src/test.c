@@ -1,25 +1,5 @@
 #include "../includes/so_long.h"
 
-//COPY OF MAIN.C
-static void	ft_putmat(char **mat)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (mat[i])
-	{
-		j = 0;
-		while (mat[i][j])
-		{
-			write(1, &mat[i][j], 1);
-			j++;	
-		}
-		write(1, "\n", 1);
-		i++;
-	}
-}
-
 void	set_path(t_image *asset)
 {
 	asset[0].path = "./assets/diamond_rush/idle1.xpm";
@@ -263,6 +243,7 @@ int	looper(t_mlx *root)
 	struct timespec instant;
 
 	clock_gettime(CLOCK_REALTIME, &instant);
+	//printf("IS IT CLOCK_GETTIME?\n");
 	if ((root->dif_timer != instant.tv_nsec / 100000000) && (instant.tv_nsec / 100000000 % 1 == 0))
 	{
 		if (root->map->idle == 0)
@@ -289,34 +270,47 @@ int	looper(t_mlx *root)
 	return (0); 
 }
 
-int main()
+//NOT IN .H
+void printtmap(t_map *map)
+{
+	printf("collect: %d\n", map->collect);
+	printf("height: %d\n", map->height);
+	printf("width: %d\n", map->width);
+	printf("player_x: %d\n", map->player_x);
+	printf("player_y: %d\n", map->player_y);
+	printf("idle: %d\n", map->idle);
+	printf("active_exit: %d\n", map->active_exit);
+	printf("exit_x: %d\n", map->exit_x);
+	printf("exit_y: %d\n", map->exit_y);
+	ft_putmat(map->map);
+}
+
+int main(int argc, char *argv[])
 {
 	t_mlx	root;
 	t_image	frame;
+	t_map	map;
 
+	if (argc != 2)
+	{
+		printf("NOT THE RIGHT ARGUMENTS");
+		return (0);	
+	}
 	root.mlx = mlx_init();
 	// 1000 will be x * 24 * Scaler?
 	root.window = mlx_new_window(root.mlx, 1000, 1000, "duckgame");
-//	duck.path = "./assets/idle1.xpm";
-//	duck.img = mlx_new_image(root.mlx, 24, 27);
-//	duck.img = mlx_xpm_file_to_image(root.mlx, duck.path, &duck.width, &duck.height);
-//	duck.addr = mlx_get_data_addr(duck.img, &duck.bpp, &duck.line_length, &duck.endian);
 	root.asset = init_assets(&root);
 	root.x = 0;
 	root.y = 0;
 	root.s = 24 * SCALER;
+	root.dif_timer = 0;
 	//AFTER SETITNG MAP->PLAYER_X AND Y REMOVE P FROM MAP
-	root.map->map = ft_split("111111111111111 1oocoooooooooo1 1o22oooooooooo1 1co2oooooooooo1 1Eoooooooooooo1 111111111111111", ' ');
-	root.map->player_x = 1;
-	root.map->player_y = 1;
-	root.map->collect = 2;
-	root.map->exit_x = 1;
-	root.map->exit_y = 4;
-	root.map->idle = 0;
-	ft_putmat(root.map->map);
-	printf("\n");
-	frame.height = 6 * root.s;
-	frame.width = 15 * root.s;
+	//printf("WHAT\n\n")1111111111111
+	map_constructor(&map, argv[1]);
+	root.map = &map;
+	printtmap(&map);
+	frame.height = root.map->height * root.s;
+	frame.width = root.map->width * root.s;
 	frame.img = mlx_new_image(root.mlx, frame.width, frame.height);
 	frame.addr = mlx_get_data_addr(frame.img, &frame.bpp, &frame.line_length, &frame.endian);
 	//mlx_put_image_to_window(root.mlx, root.window, root.asset[1].img, 500 - 12, 500 - 14);
@@ -324,21 +318,10 @@ int main()
 	printf("root->s: %d\n", root.s);
 	printf("frame %d e %d\n", root.frame.width, root.frame.height);
 	printf("asset[1]: %d e %d\n", root.asset[111].width, root.asset[111].height);
-//	draw_xy(&root, &root.asset[111], 500, 500);
-//	draw_map(&root);
-//	sleep(1);
-//	draw_xy(&root, &root.asset[1], root.x, root.y);
-//	draw_xy(&root, &root.asset[0], 324, 300);
-//	draw_xy(&root, &root.asset[0], 348, 300);
-//	sleep(0.1);
-//	draw_xy(&root, &root.asset[2], 500, 500);
-//	draw(&root, &asset[1]);
-//	mlx_put_image_to_window(root.mlx, root.window, asset[0].img, 500 - 12, 500 - 14);
-//	sleep(1);
-//	mlx_put_image_to_window(root.mlx, root.window, asset[1].img, 200 - 12, 200 - 14);
-	//
 	mlx_key_hook(root.window, input_player, &root);
 	mlx_loop_hook(root.mlx, looper, &root);	
 	mlx_loop(root.mlx);
+	//FREE STUFF MAP AND ASSETS
+	free_map(map.map);
 	return (0);
 }

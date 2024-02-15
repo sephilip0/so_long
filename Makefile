@@ -1,41 +1,43 @@
-NAME		=	so_long
-CC			=	gcc
-FLAGS		=	-Wall -Wextra -Werror
-MLX			=	mlx/Makefile.gen
-LFT			=	includes/libft/libft.a
-INC			=	-I ./inc -I ./libft -I ./mlx
-LIB			=	-L ./includes/libft -lft -L ./mlx -lmlx -lXext -lX11 -lm -lbsd
-OBJ			=	$(patsubst src%, obj%, $(SRC:.c=.o))
-SRC			=	src/test.c \
+NAME= so_long
 
-all:		$(MLX) $(LFT) obj $(NAME)
+CC= cc
+CFLAGS= -Wall -Werror -Wextra -g	
 
-$(NAME):	$(OBJ)
-			$(CC) $(FLAGS) -g -fsanitize=address -o $@ $^ $(LIB)
+SRC= $(addprefix src/, $(SOURCES))
+SOURCES= test.c main.c
+
+OBJ_DIR= obj
+OBJ= $(addprefix $(OBJ_DIR)/, $(SRC:src/%.c=%.o))
+
+MLX_DIR= ./mlx
+MLX= $(MLX_DIR)/libmlx_Linux.a -lXext -lX11 -lm -lz
+
+LIBFT_DIR= ./includes/libft
+LIBFT= $(LIBFT_DIR)/libft.a
+
+all: $(NAME)
+
+$(NAME): $(OBJ) $(MLX) $(LIBFT)
+	$(CC) $(CFLAGS) $(OBJ) -o $@ $(MLX) $(LIBFT)
+
+$(OBJ_DIR)/%.o: src/%.c
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(MLX):
-			@echo " [ .. ] | Compiling minilibx.."
-			@make -s -C mlx
-			@echo " [ OK ] | Minilibx ready!"
+	$(MAKE) -C $(MLX_DIR)
 
-$(LFT):		
-			@echo " [ .. ] | Compiling libft.."
-			@make -s -C libft
-			@echo " [ OK ] | Libft ready!"
-
-obj:
-			@mkdir -p obj
-
-obj/%.o:	src/%.c
-			$(CC) $(FLAGS) $(INC) -o $@ -c $<
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_DIR)
 
 clean:
-		@rm -rf $(OBJ) obj
-		@echo "object files removed."
+	rm -rf $(OBJ_DIR)
+	$(MAKE) -C $(MLX_DIR) clean
+	$(MAKE) -C $(LIBFT_DIR) clean
 
-fclean:		clean
-		rm -rf $(NAME)
+fclean: clean
+	rm -f $(NAME)
+	
+re: fclean all
 
-re:			fclean all
-
-.PHONY:		all clean fclean re
+.PHONY: all fclean clean re

@@ -40,32 +40,3 @@ char	*get_next_line(int fd)
 		ft_strlcpy(buf, &buf[size], BUFFER_SIZE);
 	return (str);
 }
-
-/*
-int	main()
-{
-	int	fd;
-	char	*ptr;
-
-	fd = open("41_no_nl", O_RDONLY);
-	ptr = get_next_line(fd);
-	printf("--->%s!", ptr);
-	free(ptr);
-	ptr = get_next_line(fd);
-	printf("--->%s!", ptr);
-	free(ptr);
-	ptr = get_next_line(fd);
-	printf("--->%s!", ptr);
-	free(ptr);
-	ptr = get_next_line(fd);
-	printf("--->%s!", ptr);
-	free(ptr);
-	ptr = get_next_line(fd);
-	printf("--->%s", ptr);
-	free(ptr);*
-	ptr = get_next_line(fd);
-	printf("--->%s", ptr);
-	free(ptr);
-	close(fd);
-	return (0);
-}*/

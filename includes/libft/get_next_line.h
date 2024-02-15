@@ -25,7 +25,7 @@
 char	*get_next_line(int fd);
 
 int		ft_verline(char *str);
-size_t	ft_strlcpy(char *dst, const char *src, size_t size);
+size_t	ft_strlcopy(char *dst, const char *src, size_t size);
 char	*ft_inccpy(char *big, char *glued, int size);
 char	*ft_clear(char buf[1][BUFFER_SIZE + 1], char *str, int a);
 

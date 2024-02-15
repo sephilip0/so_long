@@ -1,23 +1,4 @@
-//#include "../includes/so_long.h"
-
-#include "../includes/libft/libft.h"
-#include "../includes/get_next_line/get_next_line.h"
-//DELETE, its in SO_LONG.H
-typedef struct s_map
-{
-	char	**map;
-	char	**collisions;
-	char	*collect_str;
-	int		collect;
-	int		height;
-	int		width;
-	int		player_y;
-	int		player_x;
-	int		exit_y;
-	int		exit_x;
-	int		active_exit;
-}	t_map;
-
+#include "../includes/so_long.h"
 
 void	map_count_row(t_map *map, char *file)
 {
@@ -132,7 +113,7 @@ int	map_param(t_map *map)
 				printf("[%d][%d]: 2\n", i, 0);
 				return (1);
 			}
-       			if (map->map[i][map->width - 1] != '1')
+       		if (map->map[i][map->width - 1] != '1')
 			{
 				printf("[%d][%d]: 3\n", i, (map->width - 1));
 				return (1);
@@ -212,14 +193,17 @@ void	check_map(t_map *map)
 void	map_constructor(t_map *map, char *file)
 {
 	int	i;
+	int col;
 	//checkname
 	printf("MAP_CONSTRUCTOR...\n");
+	//maybe map->height and width set to 0?
 	map->collect = 0;
 	map->player_x = 0;
 	map->player_y = 0;
 	map->exit_x = 0;
 	map->exit_y = 0;
 	map->active_exit = 0;
+	map->idle = 0;
 	map_count_row(map, file);
 	init_map(map, file);
 	check_map(map);
@@ -227,6 +211,16 @@ void	map_constructor(t_map *map, char *file)
 	i += map_param(map);
 	if (i != 0)
 	{
+		free_map(map->map);
+		exit(0);
+	}
+	col = 0;
+	flood_fill(map, map->player_y, map->player_x, &col);
+	if (col == map->collect && map->active_exit)
+		printf("YES! YOU CAN PLAY THE GAME\n");
+	else
+	{
+		printf("NO! UNPLAYABLE GAME\n");
 		free_map(map->map);
 		exit(0);
 	}
@@ -248,27 +242,4 @@ void	ft_putmat(char **mat)
 		}
 		i++;
 	}
-}
-
-int	main(int argc, char *argv[])
-{
-	t_map	map;
-	int	col;
-
-	col = 0;
-	if (argc != 2)
-	{
-		printf("NOT THE RIGHT ARGUMENTS");
-		return (0);	
-	}
-	map_constructor(&map, argv[1]);
-	ft_putmat(map.map);
-	flood_fill(&map, map.player_y, map.player_x, &col);
-	if (col == map.collect && map.active_exit)
-		printf("YES! YOU CAN PLAY THE GAME\n");
-	else
-		printf("NO! UNPLAYABLE GAME\n");
-	ft_putmat(map.map);
-	free_map(map.map);
-	return (0);
 }
