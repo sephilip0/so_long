@@ -270,6 +270,8 @@ int	looper(t_mlx *root)
 	return (0); 
 }
 
+
+
 //NOT IN .H
 void printtmap(t_map *map)
 {
@@ -285,6 +287,21 @@ void printtmap(t_map *map)
 	ft_putmat(map->map);
 }
 
+void	destroy_assets(t_mlx *root, t_image *asset)
+{
+	int	i;
+
+	i = 0;
+	while (i < 128)
+	{
+		if (asset[i].path && asset[i].img)
+			mlx_destroy_image(mlx->mlx, asset[i].img);
+		i++;
+	}
+}
+//DESTROY WINDOW
+//DESTROY DISPLAY
+
 int main(int argc, char *argv[])
 {
 	t_mlx	root;
@@ -296,6 +313,7 @@ int main(int argc, char *argv[])
 		printf("NOT THE RIGHT ARGUMENTS");
 		return (0);	
 	}
+	// MAYBE CHECK BEFORE INIT
 	root.mlx = mlx_init();
 	// 1000 will be x * 24 * Scaler?
 	root.window = mlx_new_window(root.mlx, 1000, 1000, "duckgame");
@@ -304,7 +322,6 @@ int main(int argc, char *argv[])
 	root.y = 0;
 	root.s = 24 * SCALER;
 	root.dif_timer = 0;
-	//AFTER SETITNG MAP->PLAYER_X AND Y REMOVE P FROM MAP
 	//printf("WHAT\n\n")1111111111111
 	map_constructor(&map, argv[1]);
 	root.map = &map;

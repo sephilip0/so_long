@@ -224,6 +224,8 @@ void	map_constructor(t_map *map, char *file)
 		free_map(map->map);
 		exit(0);
 	}
+	//AFTER SETITNG MAP->PLAYER_X AND Y REMOVE P FROM MAP
+	map->map[map->player_y][map->player_x] = 'o';
 }
 
 void	ft_putmat(char **mat)

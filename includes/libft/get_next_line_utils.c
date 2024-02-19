@@ -6,7 +6,7 @@
 /*   By: sephilip <sephilip@student.42lisboa.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 13:28:15 by sephilip          #+#    #+#             */
-/*   Updated: 2023/11/02 13:29:24 by sephilip         ###   ########.fr       */
+/*   Updated: 2024/02/15 20:41:01 by sephilip         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,8 @@ char	*ft_inccpy(char *big, char *glued, int size)
 	str = (char *)malloc((i + size + 1) * sizeof(char));
 	if (!str)
 		return (NULL);
-	ft_strlcpy(str, big, i + 1);
-	ft_strlcpy(&(str[i]), glued, size + 1);
+	ft_strlcopy(str, big, i + 1);
+	ft_strlcopy(&(str[i]), glued, size + 1);
 	if (*big)
 		free(big);
 	return (str);

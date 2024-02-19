@@ -6,7 +6,7 @@
 /*   By: sephilip <sephlip@student.42lisboa.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/09 15:41:57 by sephilip          #+#    #+#             */
-/*   Updated: 2023/11/02 13:27:24 by sephilip         ###   ########.fr       */
+/*   Updated: 2024/02/15 20:40:14 by sephilip         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,6 @@ char	*get_next_line(int fd)
 		str = ft_inccpy(str, buf, size);
 	}
 	if (*buf)
-		ft_strlcpy(buf, &buf[size], BUFFER_SIZE);
+		ft_strlcopy(buf, &buf[size], BUFFER_SIZE);
 	return (str);
 }
