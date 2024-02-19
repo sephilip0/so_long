@@ -36,6 +36,7 @@ void	free_map(char **map)
 		i++;
 	}
 	free(map);
+	exit(0);
 }
 
 void	init_map(t_map *map, char *file)
