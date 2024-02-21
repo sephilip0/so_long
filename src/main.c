@@ -205,6 +205,7 @@ void	map_constructor(t_map *map, char *file)
 	map->exit_y = 0;
 	map->active_exit = 0;
 	map->idle = 0;
+	map->walk = 1;
 	map_count_row(map, file);
 	init_map(map, file);
 	check_map(map);

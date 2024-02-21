@@ -27,10 +27,12 @@ void	killmlx(t_mlx *root)
 
 void	set_path(t_image *asset)
 {
-	asset[0].path = "./assets/diamond_rush/idle1.xpm";
-	asset[1].path = "./assets/diamond_rush/idle2.xpm";
-	asset[2].path = "./assets/diamond_rush/walk1.xpm";
-	asset[3].path = "./assets/diamond_rush/walk2.xpm";
+	asset[1].path = "./assets/diamond_rush/idle1.xpm";
+	asset[2].path = "./assets/diamond_rush/idle2.xpm";
+	asset[3].path = "./assets/diamond_rush/walkr1.xpm";
+	asset[4].path = "./assets/diamond_rush/walkr2.xpm";
+	asset[5].path = "./assets/diamond_rush/walkl1.xpm";
+	asset[6].path = "./assets/diamond_rush/walkl2.xpm";
 	asset[49].path = "./assets/diamond_rush/wall.xpm";
 	asset[50].path = "./assets/diamond_rush/rock.xpm";
 	asset[69].path = "./assets/diamond_rush/exit.xpm";
@@ -161,7 +163,8 @@ void	draw_map(t_mlx *root)
 	mlx_put_image_to_window(root->mlx, root->window, root->frame.img, 0, 0);
 }
 
-void	movement_player(t_mlx *root, int movx, int movy)
+//lr means left right
+void	movement_player(t_mlx *root, int movx, int movy, int lr)
 {
 //	root.frame.player_state_x = movx;
 //	root.frame.player_state_y = movy;
@@ -180,23 +183,13 @@ void	movement_player(t_mlx *root, int movx, int movy)
 			root->map->map[root->map->player_y + movy][root->map->player_x + movx] = 'o';
 			root->map->collect -= 1;
 		}
-	//	printf("nextx: %d\n", (root->map->player_x * root->s + (movx * 24)));
-	//	printf("nexty: %d\n", (root->map->player_y * root->s + (movy * 24)));
+		//maybe its better to call a function that tells which asset to put instead of 111?
 		draw_part(root, &root->asset[111], root->map->player_x * root->s, root->map->player_y * root->s);
-		//draw_part(root, &root->asset[2], root->map->player_x * root->s + (movx * 24), root->map->player_y * root->s + (movy * 24));
-		draw_part(root, &root->asset[3], root->map->player_x * root->s + (movx * 24), root->map->player_y * root->s + (movy * 24));
+		draw_part(root, &root->asset[lr], root->map->player_x * root->s + (movx * 24), root->map->player_y * root->s + (movy * 24));
+		root->map->walk = lr - 1;
 		root->map->player_y += movy;
 		root->map->player_x += movx;
-		//ATENTION HERE
-	//	root->map->player_state_x = 0;
-	//	root->map->player_state_y = 0;
 	}
-//	if (root->map->map[root->map->exit_y][root->map->exit_x] != 'P')
-//		root->map->map[root->map->exit_y][root->map->exit_x] = 'E';
-//	printf("player_x: %d\n", root->map->player_x);
-//	printf("player_y: %d\n", root->map->player_y);
-//	printf("COLLECTABLES: %d\n", root->map->collect);
-//	ft_putmat(root->map->map);
 	printf("STEPS: %d\n", root->steps);
 }
 
@@ -208,22 +201,22 @@ int	input_player(int keysym, t_mlx *root)
 	if (keysym == XK_w)
 	{
 		printf("go up \n");
-		movement_player(root, 0, -1);
+		movement_player(root, 0, -1, 4);
 	}
 	else if (keysym == XK_s)
 	{
 		printf("go down \n");
-		movement_player(root, 0, 1);
+		movement_player(root, 0, 1, 4);
 	}
 	else if (keysym == XK_a)
 	{
 		printf("go left \n");
-		movement_player(root, -1, 0);
+		movement_player(root, -1, 0, 6);
 	}
 	else if (keysym == XK_d)
 	{
 		printf("go right \n");
-		movement_player(root, 1, 0);
+		movement_player(root, 1, 0, 4);
 	}
 	else if (keysym == XK_Escape)
 		killmlx(root);
@@ -240,6 +233,17 @@ void	render(t_mlx *root)
 {
 }*/
 
+int	switcher(int base, int min, int max)
+{
+	if (min > max || base < min || base > max)
+		return (base);
+	if (base == max)
+		base = min;
+	else
+		base++;
+	return (base);
+}
+
 int	looper(t_mlx *root)
 {
 	struct timespec instant;
@@ -251,21 +255,16 @@ int	looper(t_mlx *root)
 		if (root->map->idle == 0)
 		{
 			draw_map(root);
-			draw_part(root, &root->asset[2], root->map->player_x * root->s, root->map->player_y * root->s);
+			//printf("idle: [%d]", root->map->walk);
+			draw_part(root, &root->asset[root->map->walk], root->map->player_x * root->s, root->map->player_y * root->s);
 			root->map->idle = 1;
 		}
 		//ONE FUNCTION FOR ALL IDLE INCLUDING GRAVITY?
-		else if (instant.tv_nsec / 100000000 % 5 == 0 && root->map->idle == 1) 
+		else if (instant.tv_nsec / 100000000 % 5 == 0) 
 		{
 			draw_part(root, &root->asset[111], root->map->player_x * root->s, root->map->player_y * root->s);
-			draw_part(root, &root->asset[0], root->map->player_x * root->s, root->map->player_y * root->s);
-			root->map->idle = 2;
-		}
-		else if (instant.tv_nsec / 100000000 % 5 == 0 && root->map->idle == 2)
-		{
-			draw_part(root, &root->asset[111], root->map->player_x * root->s, root->map->player_y * root->s);
-			draw_part(root, &root->asset[1], root->map->player_x * root->s, root->map->player_y * root->s);
-			root->map->idle = 1;
+			draw_part(root, &root->asset[root->map->idle], root->map->player_x * root->s, root->map->player_y * root->s);
+			root->map->idle = switcher(root->map->idle, 1, 2);
 		}
 		root->dif_timer = instant.tv_nsec / 100000000; 
 	}
@@ -280,7 +279,7 @@ void printtmap(t_map *map)
 	printf("width: %d\n", map->width);
 	printf("player_x: %d\n", map->player_x);
 	printf("player_y: %d\n", map->player_y);
-	printf("idle: %d\n", map->idle);
+//	printf("idle: %d\n", map->idle);
 	printf("active_exit: %d\n", map->active_exit);
 	printf("exit_x: %d\n", map->exit_x);
 	printf("exit_y: %d\n", map->exit_y);
