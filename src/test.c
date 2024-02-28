@@ -13,16 +13,22 @@ void	destroy_assets(t_mlx *root, t_image *asset)
 	}
 }
 
-void	killmlx(t_mlx *root)
+void	killmlx(t_mlx *root, int all, int ret)
 {
 	destroy_assets(root, root->asset);
 	if (root->asset)
 		free(root->asset);
-	mlx_destroy_image(root->mlx, root->frame.img);
-	mlx_destroy_window(root->mlx, root->window);
-	mlx_destroy_display(root->mlx);
+	if (all > 0)
+	{
+		mlx_destroy_image(root->mlx, root->frame.img);
+		if (all > 1)
+		{
+			mlx_destroy_window(root->mlx, root->window);
+			mlx_destroy_display(root->mlx);
+		}
+	}
 	free(root->mlx);
-	free_map(root->map->map, 0);
+	free_map(root->map->map, ret);
 }
 
 void	set_path(t_image *asset)
@@ -39,7 +45,6 @@ void	set_path(t_image *asset)
 	asset[99].path = "./assets/diamond_rush/diamond.xpm";
 	asset[111].path = "./assets/diamond_rush/base.xpm";
 }
-
 
 void	init_img(t_image *asset, t_mlx	*root)
 {
@@ -63,11 +68,11 @@ void	init_img(t_image *asset, t_mlx	*root)
 		}
 		i++;
 	}
-}		
+}
 
 t_image	*init_assets(t_mlx *root)
-{	
-	int	i;
+{
+	int			i;
 	t_image		*asset;
 
 	asset = malloc(sizeof(t_image) * ASSET_NBR);
@@ -83,7 +88,7 @@ t_image	*init_assets(t_mlx *root)
 		i++;
 	}
 	set_path(asset);
-	init_img(asset, root);	
+	init_img(asset, root);
 	return (asset);
 }
 
@@ -91,7 +96,7 @@ unsigned int	get_pixel_color(t_image *img, int x, int y)
 {
 	char	*dst;
 
-	dst = img->addr + (y * img->line_length  + x * (img->bpp / 8));
+	dst = img->addr + (y * img->line_length + x * (img->bpp / 8));
 	return (*(unsigned int *)dst);
 }
 
@@ -118,7 +123,8 @@ void	draw_part(t_mlx *root, t_image *image, int x, int y)
 		cur_x = 0;
 		while (cur_x < root->s)
 		{
-			put_pixel(&root->frame, x + cur_x, y + cur_y, get_pixel_color(image, (cur_x / SCALER), (cur_y / SCALER)));
+			put_pixel(&root->frame, x + cur_x, y + cur_y, \
+			get_pixel_color(image, (cur_x / SCALER), (cur_y / SCALER)));
 			cur_x++;
 			counter++;
 		}
@@ -127,13 +133,12 @@ void	draw_part(t_mlx *root, t_image *image, int x, int y)
 	mlx_put_image_to_window(root->mlx, root->window, root->frame.img, 0, 0);
 }
 
-void	draw_map(t_mlx *root)
+void	draw_map(t_mlx *root, int ch)
 {
 	int	cur_x;
 	int	cur_y;
 	int	i;
 	int	j;
-	int	character;
 	int	counter;
 
 	counter = 0;
@@ -145,8 +150,10 @@ void	draw_map(t_mlx *root)
 		{
 			i = cur_x / root->s;
 			j = cur_y / root->s;
-			character = root->map->map[j][i];
-			put_pixel(&root->frame, cur_x, cur_y, get_pixel_color(&root->asset[character], (cur_x % root->s / SCALER), (cur_y % root->s / SCALER)));
+			ch = root->map->map[j][i];
+			put_pixel(&root->frame, cur_x, cur_y, \
+			get_pixel_color(&root->asset[ch], \
+			(cur_x % root->s / SCALER), (cur_y % root->s / SCALER)));
 			cur_x++;
 			counter++;
 		}
@@ -158,12 +165,11 @@ void	draw_map(t_mlx *root)
 //lr means left right
 void	movement_player(t_mlx *root, int movx, int movy, int lr)
 {
-//	root.frame.player_state_x = movx;
-//	root.frame.player_state_y = movy;
-	if (root->map->map[root->map->player_y + movy][root->map->player_x + movx] == 'E' && root->map->collect == 0)
+	if (root->map->map[root->map->player_y + movy][root->map->player_x + movx] == 'E' && \
+	root->map->collect == 0)
 	{
 		printf("YOU WON! CONGRATS\n");
-		killmlx(root);
+		killmlx(root, 2, 0);
 	}
 	if (root->map->map[root->map->player_y + movy][root->map->player_x + movx] < '1' || 
 		root->map->map[root->map->player_y + movy][root->map->player_x + movx] > '9')
@@ -185,11 +191,8 @@ void	movement_player(t_mlx *root, int movx, int movy, int lr)
 	printf("STEPS: %d\n", root->steps);
 }
 
-
 int	input_player(int keysym, t_mlx *root)
 {
-//	clock_t	time;
-
 	if (keysym == XK_w)
 		movement_player(root, 0, -1, 4);
 	else if (keysym == XK_s)
@@ -199,13 +202,9 @@ int	input_player(int keysym, t_mlx *root)
 	else if (keysym == XK_d)
 		movement_player(root, 1, 0, 4);
 	else if (keysym == XK_Escape)
-		killmlx(root);
+		killmlx(root, 2, 0);
 	return (0);
 }
-/*
-void	render(t_mlx *root)
-{
-}*/
 
 int	switcher(int base, int min, int max)
 {
@@ -220,24 +219,25 @@ int	switcher(int base, int min, int max)
 
 int	looper(t_mlx *root)
 {
-	struct timespec instant;
+	struct timespec	instant;
 
 	clock_gettime(CLOCK_REALTIME, &instant);
-	//printf("IS IT CLOCK_GETTIME?\n");
-	if ((root->dif_timer != instant.tv_nsec / 100000000) && (instant.tv_nsec / 100000000 % 1 == 0))
+	if ((root->dif_timer != instant.tv_nsec / 100000000) && \
+	(instant.tv_nsec / 100000000 % 1 == 0))
 	{
 		if (root->map->idle == 0)
 		{
-			draw_map(root);
-			//printf("idle: [%d]", root->map->walk);
-			draw_part(root, &root->asset[root->map->walk], root->map->player_x * root->s, root->map->player_y * root->s);
+			draw_map(root, 0);
+			draw_part(root, &root->asset[root->map->walk], \
+			root->map->player_x * root->s, root->map->player_y * root->s);
 			root->map->idle = 1;
 		}
-		//ONE FUNCTION FOR ALL IDLE INCLUDING GRAVITY?
 		else if (instant.tv_nsec / 100000000 % 5 == 0) 
 		{
-			draw_part(root, &root->asset[111], root->map->player_x * root->s, root->map->player_y * root->s);
-			draw_part(root, &root->asset[root->map->idle], root->map->player_x * root->s, root->map->player_y * root->s);
+			draw_part(root, &root->asset[111], root->map->player_x * root->s, \
+			root->map->player_y * root->s);
+			draw_part(root, &root->asset[root->map->idle], \
+			root->map->player_x * root->s, root->map->player_y * root->s);
 			root->map->idle = switcher(root->map->idle, 1, 2);
 		}
 		root->dif_timer = instant.tv_nsec / 100000000; 
@@ -245,7 +245,7 @@ int	looper(t_mlx *root)
 	return (0); 
 }
 
-//NOT IN .H
+/*
 void printtmap(t_map *map)
 {
 	printf("collect: %d\n", map->collect);
@@ -258,43 +258,33 @@ void printtmap(t_map *map)
 	printf("exit_x: %d\n", map->exit_x);
 	printf("exit_y: %d\n", map->exit_y);
 	ft_putmat(map->map);
-}
+}*/
 
-//DESTROY WINDOW
-//DESTROY DISPLAY
-//
 void	root_constructor(t_mlx *root, t_map *map, t_image *frame)
 {
-	//if assets crash no need to free the map
 	root->map = map;
 	root->mlx = mlx_init();
 	if (!root->mlx)
 		free_map(root->map->map, 1);
 	root->asset = init_assets(root);
-	//already checks in case of error;
 	root->s = 24 * SCALER;
 	frame->height = root->map->height * root->s;
 	frame->width = root->map->width * root->s;
 	frame->img = mlx_new_image(root->mlx, frame->width, frame->height);
 	if (!frame->img)
-	{
-		free(root->mlx);
-		destroy_assets(root, root->asset);
-		mlx_destroy_display(root->mlx);
-		free_map(root->map->map, 1);
-	}
-	frame->addr = mlx_get_data_addr(frame->img, &frame->bpp, &frame->line_length, &frame->endian);
+		killmlx(root, 0, 1);
+	frame->addr = mlx_get_data_addr(frame->img, &frame->bpp, \
+	&frame->line_length, &frame->endian);
 	root->frame = *frame;
-	root->window = mlx_new_window(root->mlx, frame->width, frame->height, "so_long");
-//	if (!root->window)
-		//ENDGAME WITHOUT DESTROY_WINDOW
+	root->window = mlx_new_window(root->mlx, frame->width, \
+	frame->height, "so_long");
+	if (!root->window)
+		killmlx(root, 1, 1);
 	root->steps = 0;
 	root->dif_timer = 0;
-//	printtmap(&map);
 }
 
-
-int main(int argc, char *argv[])
+int	main(int argc, char *argv[])
 {
 	t_mlx	root;
 	t_image	frame;
@@ -307,11 +297,8 @@ int main(int argc, char *argv[])
 	}
 	map_constructor(&map, argv[1]);
 	root_constructor(&root, &map, &frame);
-//	printf("root->s: %d\n", root.s);
-//	printf("frame %d e %d\n", root.frame.width, root.frame.height);
-//	printf("asset[1]: %d e %d\n", root.asset[111].width, root.asset[111].height);
 	mlx_key_hook(root.window, input_player, &root);
-	mlx_loop_hook(root.mlx, looper, &root);	
+	mlx_loop_hook(root.mlx, looper, &root);
 	mlx_loop(root.mlx);
 	return (0);
 }

@@ -1,9 +1,16 @@
 #include "../includes/so_long.h"
 
+//change to mine prinft
+void	exitmap(char **map, int ret, char *msg)
+{
+	printf("%s", msg);
+	free_map(map, ret);
+}
+
 void	map_count_row(t_map *map, char *file)
 {
-	int	fd;
-	int	i;
+	int		fd;
+	int		i;
 	char	*line;
 
 	i = 0;
@@ -53,7 +60,7 @@ void	init_map(t_map *map, char *file)
 	}
 	map->map = (char **)ft_calloc((map->height + 1), sizeof(char *));
 	if (!map->map)
-		exit(1);	
+		exit(1);
 	i = 0;
 	while (i < map->height)
 	{
@@ -77,24 +84,48 @@ void	flood_fill(t_map *map, int y, int x, int *c)
 		(*c)++;
 		map->map[y][x] = 'c';
 	}
-	if ((map->map[y + 1][x] != '1' && map->map[y + 1][x] != 'o' && map->map[y + 1][x] != 'c'))
+	if ((map->map[y + 1][x] != '1' && map->map[y + 1][x] != 'o' && \
+		map->map[y + 1][x] != 'c'))
 		flood_fill(map, y + 1, x, c);
-	if ((map->map[y - 1][x] != '1' && map->map[y - 1][x] != 'o' && map->map[y - 1][x] != 'c'))
+	if ((map->map[y - 1][x] != '1' && map->map[y - 1][x] != 'o' && \
+		map->map[y - 1][x] != 'c'))
 		flood_fill(map, y - 1, x, c);
-	if ((map->map[y][x + 1] != '1' && map->map[y][x + 1] != 'o' && map->map[y][x + 1] != 'c'))
+	if ((map->map[y][x + 1] != '1' && map->map[y][x + 1] != 'o' && \
+		map->map[y][x + 1] != 'c'))
 		flood_fill(map, y, x + 1, c);
-	if ((map->map[y][x - 1] != '1' && map->map[y][x - 1] != 'o' && map->map[y][x - 1] != 'c'))
+	if ((map->map[y][x - 1] != '1' && map->map[y][x - 1] != 'o' && \
+		map->map[y][x - 1] != 'c'))
 		flood_fill(map, y, x - 1, c);
 }
 
-int	map_param(t_map *map)
+void	character_analyser(t_map *map, int i, int j)
+{
+	if (map->map[0][j] != '1' || map->map[map->height - 1][j] != '1')
+		exitmap(map->map, 0, "WRONG MAP1\n");
+	if (map->map[i][map->width - 1] != '1' || map->map[i][0] != '1')
+		exitmap(map->map, 0, "WRONG MAP2\n");
+	if (map->map[i][j] == 'C')
+		(map->collect)++;
+	if (map->map[i][j] == 'E')
+	{
+		map->exit_y = i;
+		map->exit_x = j;
+	}
+	if (map->map[i][j] == 'P')
+	{
+		map->player_y = i;
+		map->player_x = j;
+	}
+}
+
+void	map_param(t_map *map)
 {
 	int	i;
 	int	j;
-	int	exit;
+	int	exiton;
 	int	player;
 
-	exit = 0;
+	exiton = 0;
 	player = 0;
 	i = 0;
 	while (i < map->height)
@@ -102,35 +133,17 @@ int	map_param(t_map *map)
 		j = 0;
 		while (j < map->width)
 		{
-			if (map->map[0][j] != '1')
-				return (1);
-			if (map->map[i][0] != '1')
-				return (1);
-       		if (map->map[i][map->width - 1] != '1')
-				return (1);
-			if (map->map[map->height - 1][j] != '1')
-				return (1);
-			if (map->map[i][j] == 'C')
-				(map->collect)++;
-			if (map->map[i][j] == 'E')
-			{
-				map->exit_y = i;
-				map->exit_x = j;
-				exit++;
-			}
+			character_analyser(map, i, j);
 			if (map->map[i][j] == 'P')
-			{
-				map->player_y = i;
-				map->player_x = j;
 				player++;
-			}
+			if (map->map[i][j] == 'E')
+				exiton++;
 			j++;
 		}
 		i++;
 	}
-	if ((map->collect < 1) || (player != 1) || (exit != 1))
-		return (1);
-	return (0);
+	if ((map->collect < 1) || (player != 1) || (exiton != 1))
+		exitmap(map->map, 0, "WRONG MAP3\n");
 }
 
 void	check_map(t_map *map)
@@ -140,35 +153,23 @@ void	check_map(t_map *map)
 	int	j;
 	int	c;
 
-	if (map->height < 3)
-	{
-		write(2, "LESS THAN 3 LINES MAP\n", 22);
-		exit(0);
-	}
 	i = 0;
 	while (i < map->height)
 	{
 		width = ft_strlen(map->map[i]) - 1;
 		if (width != map->width)
-		{
-			write(2, "NOT RECTANGLE\n", 14);
-			free_map(map->map, 0);
-		}
+			exitmap(map->map, 0, "NOT RECTANGLE");
 		j = 0;
 		while (j < map->width)
 		{
 			c = map->map[i][j];
 			if (!(c == '0' || c == '1' || c == 'C' || c == 'E' || c == 'P'))
-			{
-				write(2, "ERROR LETTER\n", 13);
-				free_map(map->map, 0);
-			}
+				exitmap(map->map, 0, "ERROR LETTER");
 			j++;
 		}
 		i++;
 	}
 }
-
 
 void	name_check(char *name)
 {
@@ -181,14 +182,15 @@ void	name_check(char *name)
 		ret = 1;
 	if (ret)
 	{
-		printf("ERROR NAME\n");
+		write(2, "ERROR NAME\n", 11);
 		exit (0);
 	}
 }
 
 void	maptozero(t_map *map)
 {
-	//maybe map->height and width set to 0?
+	map->height = 0;
+	map->width = 0;
 	map->collect = 0;
 	map->player_x = 0;
 	map->player_y = 0;
@@ -199,31 +201,26 @@ void	maptozero(t_map *map)
 	map->walk = 1;
 }
 
+//AFTER SETITNG MAP->PLAYER_X AND Y REMOVE P FROM MAP
 void	map_constructor(t_map *map, char *file)
 {
-	int	i;
-	int col;
+	int		col;
 
 	maptozero(map);
 	name_check(file);
 	map_count_row(map, file);
+	if (map->height < 3)
+	{
+		write(2, "LESS THAN 3 LINES MAP\n", 22);
+		exit(0);
+	}
 	init_map(map, file);
 	check_map(map);
-	i = 0;
-	i += map_param(map);
-	if (i != 0)
-	{
-		write(2, "WRONG MAP\n", 10);
-		free_map(map->map, 0);
-	}
+	map_param(map);
 	col = 0;
 	flood_fill(map, map->player_y, map->player_x, &col);
 	if (!(col == map->collect && map->active_exit))
-	{
-		write(2, "WRONG MAP\n", 10);
-		free_map(map->map, 0);
-	}
-	//AFTER SETITNG MAP->PLAYER_X AND Y REMOVE P FROM MAP
+		exitmap(map->map, 0, "FLOOD FILL ERROR");
 	map->map[map->player_y][map->player_x] = 'o';
 }
 
@@ -239,7 +236,7 @@ void	ft_putmat(char **mat)
 		while (mat[i][j])
 		{
 			write(1, &mat[i][j], 1);
-			j++;	
+			j++;
 		}
 		i++;
 	}
