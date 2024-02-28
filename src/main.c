@@ -11,7 +11,7 @@ void	map_count_row(t_map *map, char *file)
 	if (fd == -1)
 	{
 		write(2, "ERROR OPEN FILE\n", 16);
-		exit(0);
+		exit(1);
 	}
 	line = get_next_line(fd);
 	while (line != NULL)
@@ -25,7 +25,7 @@ void	map_count_row(t_map *map, char *file)
 	map->height = i;
 }
 
-void	free_map(char **map)
+void	free_map(char **map, int ret)
 {
 	int	i;
 
@@ -36,7 +36,7 @@ void	free_map(char **map)
 		i++;
 	}
 	free(map);
-	exit(0);
+	exit(ret);
 }
 
 void	init_map(t_map *map, char *file)
@@ -49,11 +49,11 @@ void	init_map(t_map *map, char *file)
 	if (fd == -1)
 	{
 		write(2, "ERROR OPEN FILE 2\n", 18);
-		exit(0);
+		exit(1);
 	}
 	map->map = (char **)ft_calloc((map->height + 1), sizeof(char *));
 	if (!map->map)
-		exit(0);	
+		exit(1);	
 	i = 0;
 	while (i < map->height)
 	{
@@ -64,11 +64,10 @@ void	init_map(t_map *map, char *file)
 	close(fd);
 }
 
+//0 -> o
+//C -> c
 void	flood_fill(t_map *map, int y, int x, int *c)
 {
-	//0 -> o
-	//C -> c
-	printf("y: %d x: %d\n", y , x);
 	if (map->map[y][x] == '0')
 		map->map[y][x] = 'o';
 	if (map->map[y][x] == 'E')
@@ -95,7 +94,6 @@ int	map_param(t_map *map)
 	int	exit;
 	int	player;
 
-	printf("MAP_PARAM...\n");
 	exit = 0;
 	player = 0;
 	i = 0;
@@ -105,25 +103,13 @@ int	map_param(t_map *map)
 		while (j < map->width)
 		{
 			if (map->map[0][j] != '1')
-			{
-				printf("[%d][%d]: 1\n", 0, j);
 				return (1);
-			}
 			if (map->map[i][0] != '1')
-			{
-				printf("[%d][%d]: 2\n", i, 0);
 				return (1);
-			}
        		if (map->map[i][map->width - 1] != '1')
-			{
-				printf("[%d][%d]: 3\n", i, (map->width - 1));
 				return (1);
-			}
 			if (map->map[map->height - 1][j] != '1')
-			{
-				printf("[%d][%d]: 4\n", (map->height - 1), j);
 				return (1);
-			}
 			if (map->map[i][j] == 'C')
 				(map->collect)++;
 			if (map->map[i][j] == 'E')
@@ -142,9 +128,6 @@ int	map_param(t_map *map)
 		}
 		i++;
 	}
-	printf("col: %d\n", map->collect);
-	printf("exit: %d\n", exit);
-	printf("player: %d\n", player);
 	if ((map->collect < 1) || (player != 1) || (exit != 1))
 		return (1);
 	return (0);
@@ -157,9 +140,6 @@ void	check_map(t_map *map)
 	int	j;
 	int	c;
 
-	printf("CHECK_MAP...\n");
-	printf("map_height: %d\n", map->height);
-	printf("map_width: %d\n", map->width);
 	if (map->height < 3)
 	{
 		write(2, "LESS THAN 3 LINES MAP\n", 22);
@@ -172,8 +152,7 @@ void	check_map(t_map *map)
 		if (width != map->width)
 		{
 			write(2, "NOT RECTANGLE\n", 14);
-			free_map(map->map);
-			exit(0);
+			free_map(map->map, 0);
 		}
 		j = 0;
 		while (j < map->width)
@@ -182,8 +161,7 @@ void	check_map(t_map *map)
 			if (!(c == '0' || c == '1' || c == 'C' || c == 'E' || c == 'P'))
 			{
 				write(2, "ERROR LETTER\n", 13);
-				free_map(map->map);
-				exit(0);
+				free_map(map->map, 0);
 			}
 			j++;
 		}
@@ -191,12 +169,25 @@ void	check_map(t_map *map)
 	}
 }
 
-void	map_constructor(t_map *map, char *file)
+
+void	name_check(char *name)
 {
 	int	i;
-	int col;
-	//checkname
-	printf("MAP_CONSTRUCTOR...\n");
+	int	ret;
+
+	i = ft_strlen(name);
+	ret = ft_strncmp(&name[i - 4], ".ber", 4);
+	if (name[i - 5] == '/')
+		ret = 1;
+	if (ret)
+	{
+		printf("ERROR NAME\n");
+		exit (0);
+	}
+}
+
+void	maptozero(t_map *map)
+{
 	//maybe map->height and width set to 0?
 	map->collect = 0;
 	map->player_x = 0;
@@ -206,6 +197,15 @@ void	map_constructor(t_map *map, char *file)
 	map->active_exit = 0;
 	map->idle = 0;
 	map->walk = 1;
+}
+
+void	map_constructor(t_map *map, char *file)
+{
+	int	i;
+	int col;
+
+	maptozero(map);
+	name_check(file);
 	map_count_row(map, file);
 	init_map(map, file);
 	check_map(map);
@@ -213,18 +213,15 @@ void	map_constructor(t_map *map, char *file)
 	i += map_param(map);
 	if (i != 0)
 	{
-		free_map(map->map);
-		exit(0);
+		write(2, "WRONG MAP\n", 10);
+		free_map(map->map, 0);
 	}
 	col = 0;
 	flood_fill(map, map->player_y, map->player_x, &col);
-	if (col == map->collect && map->active_exit)
-		printf("YES! YOU CAN PLAY THE GAME\n");
-	else
+	if (!(col == map->collect && map->active_exit))
 	{
-		printf("NO! UNPLAYABLE GAME\n");
-		free_map(map->map);
-		exit(0);
+		write(2, "WRONG MAP\n", 10);
+		free_map(map->map, 0);
 	}
 	//AFTER SETITNG MAP->PLAYER_X AND Y REMOVE P FROM MAP
 	map->map[map->player_y][map->player_x] = 'o';

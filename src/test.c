@@ -22,7 +22,7 @@ void	killmlx(t_mlx *root)
 	mlx_destroy_window(root->mlx, root->window);
 	mlx_destroy_display(root->mlx);
 	free(root->mlx);
-	free_map(root->map->map);
+	free_map(root->map->map, 0);
 }
 
 void	set_path(t_image *asset)
@@ -56,7 +56,7 @@ void	init_img(t_image *asset, t_mlx	*root)
 			{
 				destroy_assets(root, asset);
 				free(root->mlx);
-				free_map(root->map->map);
+				free_map(root->map->map, 1);
 			}
 			asset[i].addr = mlx_get_data_addr(asset[i].img, &asset[i].bpp, \
 					&asset[i].line_length, &asset[i].endian);
@@ -74,7 +74,7 @@ t_image	*init_assets(t_mlx *root)
 	if (!asset)
 	{
 		free(root->mlx);
-		free_map(root->map->map);
+		free_map(root->map->map, 1);
 	}
 	i = 0;
 	while (i < ASSET_NBR)
@@ -107,8 +107,6 @@ void	put_pixel(t_image *img, int x, int y, int color)
 
 void	draw_part(t_mlx *root, t_image *image, int x, int y)
 {
-
-	//	unsigned int	color;
 	int	cur_x;
 	int	cur_y;
 	int	counter;
@@ -126,16 +124,11 @@ void	draw_part(t_mlx *root, t_image *image, int x, int y)
 		}
 		cur_y++;
 	}
-//	printf("COUNTER: %d\n\n", counter);
 	mlx_put_image_to_window(root->mlx, root->window, root->frame.img, 0, 0);
 }
 
 void	draw_map(t_mlx *root)
 {
-// ver qual e o asset
-// ver qual e o pixel do asset
-
-	//	unsigned int	color;
 	int	cur_x;
 	int	cur_y;
 	int	i;
@@ -159,7 +152,6 @@ void	draw_map(t_mlx *root)
 		}
 		cur_y++;
 	}
-	printf("COUNTER: %d\n\n", counter);
 	mlx_put_image_to_window(root->mlx, root->window, root->frame.img, 0, 0);
 }
 
@@ -199,33 +191,15 @@ int	input_player(int keysym, t_mlx *root)
 //	clock_t	time;
 
 	if (keysym == XK_w)
-	{
-		printf("go up \n");
 		movement_player(root, 0, -1, 4);
-	}
 	else if (keysym == XK_s)
-	{
-		printf("go down \n");
 		movement_player(root, 0, 1, 4);
-	}
 	else if (keysym == XK_a)
-	{
-		printf("go left \n");
 		movement_player(root, -1, 0, 6);
-	}
 	else if (keysym == XK_d)
-	{
-		printf("go right \n");
 		movement_player(root, 1, 0, 4);
-	}
 	else if (keysym == XK_Escape)
 		killmlx(root);
-	//NOT EXIT, RETURN 1?
-	// else change state
-//	draw_part(root, &root->asset[1], root->map->player_x * root->s, root->map->player_y * root->s);
-	//FOR THE SAKE OF UPDATE
-//	checkgravity(root);
-//	mlx_put_image_to_window(root->mlx, root->window, root->frame.img, 0, 0);
 	return (0);
 }
 /*
@@ -295,7 +269,7 @@ void	root_constructor(t_mlx *root, t_map *map, t_image *frame)
 	root->map = map;
 	root->mlx = mlx_init();
 	if (!root->mlx)
-		free_map(root->map->map);
+		free_map(root->map->map, 1);
 	root->asset = init_assets(root);
 	//already checks in case of error;
 	root->s = 24 * SCALER;
@@ -307,7 +281,7 @@ void	root_constructor(t_mlx *root, t_map *map, t_image *frame)
 		free(root->mlx);
 		destroy_assets(root, root->asset);
 		mlx_destroy_display(root->mlx);
-		free_map(root->map->map);
+		free_map(root->map->map, 1);
 	}
 	frame->addr = mlx_get_data_addr(frame->img, &frame->bpp, &frame->line_length, &frame->endian);
 	root->frame = *frame;
