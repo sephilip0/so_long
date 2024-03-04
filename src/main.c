@@ -201,6 +201,24 @@ void	maptozero(t_map *map)
 	map->walk = 1;
 }
 
+void	ft_putmat(char **mat)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (mat[i])
+	{
+		j = 0;
+		while (mat[i][j])
+		{
+			write(1, &mat[i][j], 1);
+			j++;
+		}
+		i++;
+	}
+}
+
 //AFTER SETITNG MAP->PLAYER_X AND Y REMOVE P FROM MAP
 void	map_constructor(t_map *map, char *file)
 {
@@ -218,26 +236,9 @@ void	map_constructor(t_map *map, char *file)
 	check_map(map);
 	map_param(map);
 	col = 0;
+	map->map[map->player_y][map->player_x] = '0';
 	flood_fill(map, map->player_y, map->player_x, &col);
 	if (!(col == map->collect && map->active_exit))
 		exitmap(map->map, 0, "FLOOD FILL ERROR");
 	map->map[map->player_y][map->player_x] = 'o';
-}
-
-void	ft_putmat(char **mat)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (mat[i])
-	{
-		j = 0;
-		while (mat[i][j])
-		{
-			write(1, &mat[i][j], 1);
-			j++;
-		}
-		i++;
-	}
 }
