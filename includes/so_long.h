@@ -10,6 +10,7 @@
 #include <math.h>
 #include <time.h>
 
+//#define malloc(x) NULL
 #define ASSET_NBR	128
 #define SCALER		2
 
@@ -65,6 +66,7 @@ typedef struct s_mlx
 }	t_mlx;
 
 //MAIN.C
+void	exitmap(char **map, int ret, char *msg);
 void	map_count_row(t_map *map, char *file);
 void	free_map(char **map, int ret);
 void	init_map(t_map *map, char *file);

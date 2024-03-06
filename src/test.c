@@ -22,11 +22,9 @@ void	killmlx(t_mlx *root, int all, int ret)
 	{
 		mlx_destroy_image(root->mlx, root->frame.img);
 		if (all > 1)
-		{
 			mlx_destroy_window(root->mlx, root->window);
-			mlx_destroy_display(root->mlx);
-		}
 	}
+	mlx_destroy_display(root->mlx);
 	free(root->mlx);
 	free_map(root->map->map, ret);
 }
@@ -60,6 +58,7 @@ void	init_img(t_image *asset, t_mlx	*root)
 			if (!asset[i].img)
 			{
 				destroy_assets(root, asset);
+				mlx_destroy_display(root->mlx);
 				free(root->mlx);
 				free_map(root->map->map, 1);
 			}
@@ -78,8 +77,9 @@ t_image	*init_assets(t_mlx *root)
 	asset = malloc(sizeof(t_image) * ASSET_NBR);
 	if (!asset)
 	{
+		mlx_destroy_display(root->mlx);
 		free(root->mlx);
-		free_map(root->map->map, 1);
+		exitmap(root->map->map, 1, "NO ASSETS\n");
 	}
 	i = 0;
 	while (i < ASSET_NBR)
@@ -263,9 +263,10 @@ void printtmap(t_map *map)
 void	root_constructor(t_mlx *root, t_map *map, t_image *frame)
 {
 	root->map = map;
+//	root->mlx = NULL;
 	root->mlx = mlx_init();
 	if (!root->mlx)
-		free_map(root->map->map, 1);
+		exitmap(root->map->map, 1, "NO ROOT->MLX\n");
 	root->asset = init_assets(root);
 	root->s = 24 * SCALER;
 	frame->height = root->map->height * root->s;
