@@ -181,14 +181,13 @@ void	movement_player(t_mlx *root, int movx, int movy, int lr)
 			root->map->map[root->map->player_y + movy][root->map->player_x + movx] = 'o';
 			root->map->collect -= 1;
 		}
-		//maybe its better to call a function that tells which asset to put instead of 111?
 		draw_part(root, &root->asset[111], root->map->player_x * root->s, root->map->player_y * root->s);
 		draw_part(root, &root->asset[lr], root->map->player_x * root->s + (movx * 24), root->map->player_y * root->s + (movy * 24));
 		root->map->walk = lr - 1;
 		root->map->player_y += movy;
 		root->map->player_x += movx;
 	}
-	printf("STEPS: %d\n", root->steps);
+	print_steps(root);
 }
 
 int	input_player(int keysym, t_mlx *root)
@@ -217,11 +216,13 @@ int	switcher(int base, int min, int max)
 	return (base);
 }
 
+//TESTAR STEPS LA EM CIMA
 int	looper(t_mlx *root)
 {
 	struct timespec	instant;
 
 	clock_gettime(CLOCK_REALTIME, &instant);
+	print_steps(root);
 	if ((root->dif_timer != instant.tv_nsec / 100000000) && \
 	(instant.tv_nsec / 100000000 % 1 == 0))
 	{
@@ -285,6 +286,34 @@ void	root_constructor(t_mlx *root, t_map *map, t_image *frame)
 	root->dif_timer = 0;
 }
 
+int	exit_game(t_mlx *root)
+{
+	destroy_assets(root, root->asset);
+	if (root->asset)
+		free(root->asset);
+	mlx_destroy_image(root->mlx, root->frame.img);
+	mlx_destroy_window(root->mlx, root->window);
+	mlx_destroy_display(root->mlx);
+	free(root->mlx);
+	free_map(root->map->map, 0);
+	return (0);
+}
+
+void	print_steps(t_mlx *root)
+{
+	char	*moves;
+
+	if(STEPS_ON_SCREEN)
+	{
+		moves = ft_itoa(root->steps);
+		mlx_string_put(root->mlx, root->window, 10, 10,
+			0x000000, "Number of Moves:");
+		mlx_string_put(root->mlx, root->window, 110, 10,
+			0x000000, moves);
+		free(moves);
+	}
+}
+
 int	main(int argc, char *argv[])
 {
 	t_mlx	root;
@@ -298,6 +327,7 @@ int	main(int argc, char *argv[])
 	}
 	map_constructor(&map, argv[1]);
 	root_constructor(&root, &map, &frame);
+	mlx_hook(root.window, 17, 1L << 0, exit_game, &root);
 	mlx_key_hook(root.window, input_player, &root);
 	mlx_loop_hook(root.mlx, looper, &root);
 	mlx_loop(root.mlx);
