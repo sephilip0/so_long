@@ -1,9 +1,8 @@
 #include "../includes/so_long.h"
 
-//change to mine prinft
 void	exitmap(char **map, int ret, char *msg)
 {
-	printf("%s", msg);
+	ft_printf("%s", msg);
 	free_map(map, ret);
 }
 

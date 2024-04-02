@@ -13,7 +13,7 @@
 //#define malloc(x) NULL
 # define STEPS_ON_SCREEN	1
 # define ASSET_NBR	128
-# define SCALER		10
+# define SCALER		3
 
 typedef struct s_image
 {
@@ -78,10 +78,6 @@ void	map_constructor(t_map *map, char *file);
 void	ft_putmat(char **mat);
 
 //TEST.C
-
-
-void	destroy_assets(t_mlx *root, t_image *asset);
-void	killmlx(t_mlx *root, int all, int ret);
 void	set_path(t_image *asset);
 void	init_img(t_image *asset, t_mlx	*root);
 t_image	*init_assets(t_mlx *root);
@@ -94,8 +90,11 @@ int	input_player(int keysym, t_mlx *root);
 int	switcher(int base, int min, int max);
 int	looper(t_mlx *root);
 void	root_constructor(t_mlx *root, t_map *map, t_image *frame);
-int	exit_game(t_mlx *root);
 void	print_steps(t_mlx *root);
 
+//DESTROY.C
+void	destroy_assets(t_mlx *root, t_image *asset);
+void	killmlx(t_mlx *root, int all, int ret);
+int	exit_game(t_mlx *root);
 
 #endif /*SO_LONG_H */

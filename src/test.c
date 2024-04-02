@@ -1,34 +1,5 @@
 #include "../includes/so_long.h"
 
-void	destroy_assets(t_mlx *root, t_image *asset)
-{
-	int	i;
-
-	i = 0;
-	while (i < 128)
-	{
-		if (asset[i].path && asset[i].img)
-			mlx_destroy_image(root->mlx, asset[i].img);
-		i++;
-	}
-}
-
-void	killmlx(t_mlx *root, int all, int ret)
-{
-	destroy_assets(root, root->asset);
-	if (root->asset)
-		free(root->asset);
-	if (all > 0)
-	{
-		mlx_destroy_image(root->mlx, root->frame.img);
-		if (all > 1)
-			mlx_destroy_window(root->mlx, root->window);
-	}
-	mlx_destroy_display(root->mlx);
-	free(root->mlx);
-	free_map(root->map->map, ret);
-}
-
 void	set_path(t_image *asset)
 {
 	asset[1].path = "./assets/diamond_rush/idle1.xpm";
@@ -168,7 +139,7 @@ void	movement_player(t_mlx *root, int movx, int movy, int lr)
 	if (root->map->map[root->map->player_y + movy][root->map->player_x + movx] == 'E' && \
 	root->map->collect == 0)
 	{
-		printf("YOU WON! CONGRATS\n");
+		write(1, "YOU WON! CONGRATS\n", 18);
 		killmlx(root, 2, 0);
 	}
 	if (root->map->map[root->map->player_y + movy][root->map->player_x + movx] < '1' || 
@@ -186,8 +157,9 @@ void	movement_player(t_mlx *root, int movx, int movy, int lr)
 		root->map->walk = lr - 1;
 		root->map->player_y += movy;
 		root->map->player_x += movx;
+		if (!STEPS_ON_SCREEN)
+			ft_printf("Number of Moves: %d\n", root->steps);
 	}
-	print_steps(root);
 }
 
 int	input_player(int keysym, t_mlx *root)
@@ -216,7 +188,6 @@ int	switcher(int base, int min, int max)
 	return (base);
 }
 
-//TESTAR STEPS LA EM CIMA
 int	looper(t_mlx *root)
 {
 	struct timespec	instant;
@@ -246,25 +217,9 @@ int	looper(t_mlx *root)
 	return (0); 
 }
 
-/*
-void printtmap(t_map *map)
-{
-	printf("collect: %d\n", map->collect);
-	printf("height: %d\n", map->height);
-	printf("width: %d\n", map->width);
-	printf("player_x: %d\n", map->player_x);
-	printf("player_y: %d\n", map->player_y);
-//	printf("idle: %d\n", map->idle);
-	printf("active_exit: %d\n", map->active_exit);
-	printf("exit_x: %d\n", map->exit_x);
-	printf("exit_y: %d\n", map->exit_y);
-	ft_putmat(map->map);
-}*/
-
 void	root_constructor(t_mlx *root, t_map *map, t_image *frame)
 {
 	root->map = map;
-//	root->mlx = NULL;
 	root->mlx = mlx_init();
 	if (!root->mlx)
 		exitmap(root->map->map, 1, "NO ROOT->MLX\n");
@@ -284,19 +239,6 @@ void	root_constructor(t_mlx *root, t_map *map, t_image *frame)
 		killmlx(root, 1, 1);
 	root->steps = 0;
 	root->dif_timer = 0;
-}
-
-int	exit_game(t_mlx *root)
-{
-	destroy_assets(root, root->asset);
-	if (root->asset)
-		free(root->asset);
-	mlx_destroy_image(root->mlx, root->frame.img);
-	mlx_destroy_window(root->mlx, root->window);
-	mlx_destroy_display(root->mlx);
-	free(root->mlx);
-	free_map(root->map->map, 0);
-	return (0);
 }
 
 void	print_steps(t_mlx *root)
@@ -322,7 +264,7 @@ int	main(int argc, char *argv[])
 
 	if (argc != 2)
 	{
-		printf("NOT THE RIGHT ARGUMENTS");
+		write(1, "NOT THE RIGHT ARGUMENTS", 23);
 		return (0);
 	}
 	map_constructor(&map, argv[1]);
