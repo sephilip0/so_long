@@ -8,6 +8,7 @@ void	set_path(t_image *asset)
 	asset[4].path = "./assets/diamond_rush/walkr2.xpm";
 	asset[5].path = "./assets/diamond_rush/walkl1.xpm";
 	asset[6].path = "./assets/diamond_rush/walkl2.xpm";
+	asset[48].path = "./assets/diamond_rush/base.xpm";
 	asset[49].path = "./assets/diamond_rush/wall.xpm";
 	asset[50].path = "./assets/diamond_rush/rock.xpm";
 	asset[69].path = "./assets/diamond_rush/exit.xpm";

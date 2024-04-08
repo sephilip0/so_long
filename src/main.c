@@ -50,7 +50,6 @@ void	init_map(t_map *map, char *file)
 	int	fd;
 	int	i;
 
-	printf("INIT_MAP...\n");
 	fd = open(file, O_RDONLY);
 	if (fd == -1)
 	{
