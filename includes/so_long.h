@@ -22,7 +22,6 @@
 # include <math.h>
 # include <time.h>
 
-//#define malloc(x) NULL
 # define STEPS_ON_SCREEN	1
 # define ASSET_NBR	128
 # define SCALER		3

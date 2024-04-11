@@ -18,6 +18,7 @@ LIBFT= $(LIBFT_DIR)/libft.a
 all: $(NAME)
 
 $(NAME): $(OBJ) $(MLX) $(LIBFT)
+	cd ./mlx && ./configure
 	$(CC) $(CFLAGS) $(OBJ) -o $@ $(MLX) $(LIBFT)
 
 $(OBJ_DIR)/%.o: src/%.c

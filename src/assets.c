@@ -63,7 +63,7 @@ t_image	*init_assets(t_mlx *root)
 	{
 		mlx_destroy_display(root->mlx);
 		free(root->mlx);
-		exitmap(root->map->map, 1, "Error\nCOuld load assets\n");
+		exitmap(root->map->map, 1, "Error\nCould load assets\n");
 	}
 	i = 0;
 	while (i < ASSET_NBR)
