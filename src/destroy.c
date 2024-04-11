@@ -1,4 +1,38 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   destroy.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sephilip <sephlip@student.42lisboa.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/11 12:14:11 by sephilip          #+#    #+#             */
+/*   Updated: 2024/04/11 12:14:11 by sephilip         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/so_long.h"
+
+void	exitmap(char **map, int ret, char *msg)
+{
+	ft_printf("%s", msg);
+	free_map(map, ret);
+}
+
+void	free_map(char **map, int ret)
+{
+	int	i;
+
+	i = 0;
+	if (!map)
+		return ;	
+	while (map[i])
+	{
+		free(map[i]);
+		i++;
+	}
+	free(map);
+	exit(ret);
+}
 
 void	destroy_assets(t_mlx *root, t_image *asset)
 {

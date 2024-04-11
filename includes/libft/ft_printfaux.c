@@ -32,7 +32,7 @@ void	ft_printdec(unsigned int n, int *counter)
 	unsigned int	a;
 	unsigned int	res;
 
-	if	(n > 9)
+	if (n > 9)
 	{
 		res = n / 10;
 		ft_printdec(res, counter);
@@ -72,7 +72,7 @@ void	ft_printnbr(int n, int *counter)
 	{
 		if (n < 0)
 		{
-			ft_printchar('-', counter);	
+			ft_printchar('-', counter);
 			n *= -1;
 		}
 		if (n > 9)

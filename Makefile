@@ -4,7 +4,7 @@ CC= cc
 CFLAGS= -Wall -Werror -Wextra -g	
 
 SRC= $(addprefix src/, $(SOURCES))
-SOURCES= test.c main.c destroy.c
+SOURCES= behindscreen.c main.c destroy.c assets.c aux.c constructor.c map.c
 
 OBJ_DIR= obj
 OBJ= $(addprefix $(OBJ_DIR)/, $(SRC:src/%.c=%.o))
